@@ -7,10 +7,6 @@ import google.generativeai as genai
 # https://nicedouble-streamlitantdcomponentsdemo-app-middmy.streamlit.app/
 
 
-def segmented_selection():
-    st.write('Yipee')
-
-
 sac.segmented(
         items=[
             sac.SegmentedItem(icon='facebook'),
