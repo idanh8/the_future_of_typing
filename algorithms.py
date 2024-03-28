@@ -28,16 +28,14 @@ def prompt_model(model: genai, prompt: str) -> list:
     return result_list
 
 
-def get_word_predictions(model: genai, current_sentence: str, mood):
-    # TODO: use mood param to choose the prompt type
-    prompt = prompts.get_prompt_for_next_word(current_sentence)
+def get_word_predictions(model: genai, current_sentence: str, style: str, mood: str, refresh=False, words=None):
+    prompt = prompts.get_prompt_for_next_word(current_sentence, style, mood, refresh, words)
     res = prompt_model(model, prompt)
     return res
 
 
-def get_sentence_predictions(model: genai, current_sentence: str, mood):
-    # TODO: use mood param to choose the prompt type
-    prompt = prompts.get_prompt_for_next_phrases(current_sentence)
+def get_sentence_predictions(model: genai, current_sentence: str, style: str, mood: str, refresh=False, phrases=None):
+    prompt = prompts.get_prompt_for_next_phrases(current_sentence, style, mood, refresh, phrases)
     res = prompt_model(model, prompt)
     return res
 

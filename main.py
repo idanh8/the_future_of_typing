@@ -2,21 +2,23 @@ import streamlit as st
 import algorithms
 import random
 import streamlit_antd_components as sac
+from streamlit_modal import Modal
 import time
 import google.generativeai as genai
+
 # https://nicedouble-streamlitantdcomponentsdemo-app-middmy.streamlit.app/
 
+modal1 = Modal(key="up", title="Thank you for your feedback!")
+modal2 = Modal(key="down", title="We're Sorry! Thank you for your feedback")
 
+# Input App - for style, segmented bar
 sac.segmented(
-        items=[
-            sac.SegmentedItem(icon='facebook'),
-            sac.SegmentedItem(icon='whatsapp'),
-            sac.SegmentedItem(icon='google'),
-            sac.SegmentedItem(icon='linkedin'),
-        ], size=15, radius=50, align='center', use_container_width=True, key='input_app', index=1, return_index=True)
-
-if st.session_state["input_app"] == 0:
-        st.header('LinkedIn')
+    items=[
+        sac.SegmentedItem(icon='facebook'),
+        sac.SegmentedItem(icon='whatsapp'),
+        sac.SegmentedItem(icon='google'),
+        sac.SegmentedItem(icon='linkedin'),
+    ], size=15, radius=50, align='center', use_container_width=True, key='input_app', index=1, return_index=True)
 
 # session state is the backbone saving variables
 if 'message_input' not in st.session_state:
@@ -30,6 +32,8 @@ if 'sentences' not in st.session_state:
 
 if 'first' not in st.session_state:
     st.session_state.first = True
+
+st.session_state.emotion = 'neutral'
 
 if st.session_state.first:
     # built to get the first prediction which is rule based and initialize the model in a session_state, will run once
@@ -47,6 +51,18 @@ if st.session_state.first:
     st.rerun()
 
 
+def refresh_words():
+    with st.spinner('Loading inputs...'):
+        # time.sleep(3)  # use this if you want to see loading affect if the generation is too quick...
+        st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
+                                                                 current_sentence=st.session_state.message_input,
+                                                                 style=st.session_state.app_style,
+                                                                 mood=st.session_state.emotion)
+        st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
+                                                                         current_sentence=st.session_state.message_input,
+                                                                         style=st.session_state.app_style,
+                                                                         mood=st.session_state.emotion)
+
 
 def handle_text_chosen(text):
     text_to_add = text.replace(".", "")
@@ -60,10 +76,12 @@ def handle_text_chosen(text):
         # time.sleep(3)  # use this if you want to see loading affect if the generation is too quick...
         st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
                                                                  current_sentence=st.session_state.message_input,
-                                                                 mood="")
+                                                                 style=st.session_state.app_style,
+                                                                 mood=st.session_state.emotion)
         st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
                                                                          current_sentence=st.session_state.message_input,
-                                                                         mood="")
+                                                                         style=st.session_state.app_style,
+                                                                         mood=st.session_state.emotion)
     st.success('Done!')  # because of the rerun we are not seeing this pop up...
     st.rerun()
 
@@ -72,26 +90,41 @@ def update_message_input(new_text):
     st.session_state.message_input = new_text
 
 
-def thumbs_up_button(words=True):
-    if words:
-        st.write('Good Word Suggestions')
-    else:
-        st.write('Good Phrase Suggestions')
-
-
-def thumbs_down_button(words=True):
-    if words:
-        st.write('Bad Word Suggestions')
-    else:
-        st.write('Bad Phrase Suggestions')
-
-
 def refresh_button(words=True):
     if words:
-        st.write('Generating New Words')
-    else:
-        st.write('Generating New Sentences')
+        with st.spinner(''):
+            st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
+                                                                     current_sentence=st.session_state.message_input,
+                                                                     style=st.session_state.app_style,
+                                                                     mood=st.session_state.emotion,
+                                                                     refresh=True,
+                                                                     words=st.session_state.words)
 
+    else:
+        with st.spinner(''):
+            st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
+                                                                             current_sentence=st.session_state.message_input,
+                                                                             style=st.session_state.app_style,
+                                                                             mood=st.session_state.emotion,
+                                                                             refresh=True,
+                                                                             phrases=st.session_state.sentences)
+    st.success('Done!')  # because of the rerun we are not seeing this pop up...
+    st.rerun()
+
+
+# defining app_style from segmented slider
+if st.session_state["input_app"] == 0:
+    st.session_state.app_style = ' facebook social media post'
+    #refresh_words()
+elif st.session_state["input_app"] == 1:
+    st.session_state.app_style = ' text message conversation'
+    #refresh_words()
+elif st.session_state["input_app"] == 2:
+    st.session_state.app_style = ' search query'
+    #refresh_words()
+elif st.session_state["input_app"] == 3:
+    st.session_state.app_style = ' professional linkedin post'
+    #refresh_words()
 
 # Layout for predictive text buttons using columns
 cont = st.container()
@@ -123,28 +156,37 @@ with cont:
                     if st.button(text):
                         handle_text_chosen(text)
 
-
+# Bottom buttons layout
 col3, col4, col5, col6, col7, col8, col9 = st.columns([1, 1, 1, 10, 1, 1, 1])
 with col3:
     if st.button("🔄", key='left_ref'):
         refresh_button(True)
 with col4:
     if st.button("👍", key='left_tu'):
-        thumbs_up_button(True)
+        modal1.open()
 with col5:
     if st.button("👎", key='left_td'):
-        thumbs_down_button(True)
+        modal2.open()
 with col7:
     if st.button("🔄", key='right_ref'):
         refresh_button(False)
 with col8:
     if st.button("👍", key='right_tu'):
-        thumbs_up_button(False)
+        modal1.open()
 with col9:
     if st.button("👎", key='right_td'):
-        thumbs_down_button(False)
+        modal2.open()
 
-
+# thumbs up and down button popups
+if modal1.is_open():
+    with modal1.container():
+        st.write("Feel free to provide more feedback by writing to us at jacob.link@campus.technion.ac.il.")
+        st.write("Please close the popup to return to the typing screen.")
+if modal2.is_open():
+    with modal2.container():
+        st.write("Feel free to provide more feedback by writing to us at jacob.link@campus.technion.ac.il.")
+        st.write("You can always get new suggestions by clicking the refresh button.")
+        st.write("Please close the popup to return to the typing screen.")
 
 # text bar and submit button
 with st.form('chat_input_form'):
@@ -165,6 +207,24 @@ with st.form('chat_input_form'):
 
 # Mood slider at the bottom
 mood = st.select_slider("How are you feeling today?", ["😄", "😊", "😐", "😔", "😭"], key="mood", value="😐")
+
+if mood == "😄":
+    st.session_state.emotion = 'overjoyed'
+    #refresh_words()
+elif mood == "😊":
+    st.session_state.emotion = 'happy'
+    #refresh_words()
+elif mood == "😐":
+    st.session_state.emotion = 'neutral'
+    #refresh_words()
+elif mood == "😔":
+    st.session_state.emotion = 'sad'
+    #refresh_words()
+elif mood == "😭":
+    st.session_state.emotion = 'devastated'
+    #refresh_words()
+
+# Input Type
 sac.segmented(
     items=[
         sac.SegmentedItem(icon='mic'),
