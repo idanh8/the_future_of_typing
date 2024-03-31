@@ -5,7 +5,7 @@ import streamlit_antd_components as sac
 from streamlit_modal import Modal
 import time
 import google.generativeai as genai
-from whisper_speach_to_text import whisper_stt
+from whisper_speech_to_text import whisper_stt
 from api_keys import WHISPER_API_KEY, GEMINI_API_KEY
 
 # https://nicedouble-streamlitantdcomponentsdemo-app-middmy.streamlit.app/
@@ -66,8 +66,8 @@ if st.session_state.first_recommendation:
     st.rerun()
 
 
-def refresh_words(app_style=None):
-    with st.spinner('Loading inputs...'):
+def refresh_words(app_style=None, spinner_label='Loading inputs...'):
+    with st.spinner(spinner_label):
         # time.sleep(3)  # use this if you want to see loading affect if the generation is too quick...
         st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
                                                                  current_sentence=st.session_state.message_input,
@@ -181,6 +181,16 @@ def refresh_button(words=True):
     st.rerun()
 
 
+def handle_backspace(text):
+    words = text.split()
+    if words:
+        words.pop()
+        updated_text = " ".join(words)
+        return updated_text
+    else:
+        return ""
+
+
 # defining app_style from segmented slider
 if st.session_state["input_app"] == 0:
     st.session_state.app_style = ' facebook social media post'
@@ -274,13 +284,19 @@ if modal2.is_open():
 
 # text bar and submit button
 with st.form('chat_input_form'):
-    text_bar_col1, text_bar_col2 = st.columns([13, 1])
+    text_bar_col1, text_bar_col2, text_bar_col3 = st.columns([13, 1, 1])
 
     with text_bar_col1:
         prompt = st.text_input(label="Insert text here", value=st.session_state.message_input,
                                label_visibility='collapsed',
                                placeholder="Start Writing...")
     with text_bar_col2:
+        if st.form_submit_button("🔙"):
+            updated_text = handle_backspace(st.session_state.message_input)
+            st.session_state.message_input = updated_text
+            refresh_words(spinner_label='')
+
+    with text_bar_col3:
         submitted = st.form_submit_button('⬆')
 
     if prompt and submitted:
@@ -329,17 +345,24 @@ sac.segmented(
         sac.SegmentedItem(icon='eye'),
     ], size=20, radius=50, align='center', use_container_width=True, index=1, key='input_type', return_index=True)
 
-st.header("TESTING STT")
-whisper_text = whisper_stt(openai_api_key=WHISPER_API_KEY, language='en', just_once=True)
+if st.session_state['input_type'] == 0:
+    whisper_text = whisper_stt(openai_api_key=WHISPER_API_KEY, language='en', just_once=True)
 
-if whisper_text:
-    if whisper_text == "Recording too long, keep recordings less than 10 seconds":
-        st.write(whisper_text)
-    else:
-        if st.session_state.message_input == "":
-            handle_text_chosen(whisper_text, from_whisper=True)
+    if whisper_text:
+        if whisper_text == "Recording too long, keep recordings less than 10 seconds":
+            st.write(whisper_text)
         else:
-            handle_text_chosen(whisper_text.lower(), from_whisper=True)
+            if st.session_state.message_input == "":
+                handle_text_chosen(whisper_text, from_whisper=True)
+            else:
+                handle_text_chosen(whisper_text.lower(), from_whisper=True)
+
+col10, col11, col12 = st.columns([5, 5, 5])
+with col11:
+    chat_history = st.session_state.previous_input[::-1]
+    with st.popover("Chat History", use_container_width=True):
+        for sentence in chat_history:
+            st.write(sentence)
 
 st.header("Debug:")
 st.write(st.session_state)
