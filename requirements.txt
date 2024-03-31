@@ -1,0 +1,6 @@
+streamlit
+streamlit_antd_components
+streamlit_modal
+google-generativeai
+streamlit_mic_recorder
+openai

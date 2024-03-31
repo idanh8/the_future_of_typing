@@ -5,6 +5,7 @@ import prompts
 
 def process_gemini_response(x):
     sentences = x.split("\n")
+    sentences = [x.replace("*", "") for x in sentences]  # drop bold
 
     if len(sentences[0].split(" ")) > 2:  # phrase prediction
         sentences = ["..." + x[3:] for x in sentences]  # drop the index we defined in the prompt...

@@ -5,6 +5,8 @@ import streamlit_antd_components as sac
 from streamlit_modal import Modal
 import time
 import google.generativeai as genai
+from whisper_speach_to_text import whisper_stt
+from api_keys import WHISPER_API_KEY, GEMINI_API_KEY
 
 # https://nicedouble-streamlitantdcomponentsdemo-app-middmy.streamlit.app/
 
@@ -21,6 +23,9 @@ sac.segmented(
     ], size=15, radius=50, align='center', use_container_width=True, key='input_app', index=1, return_index=True)
 
 # session state is the backbone saving variables
+if "previous_input" not in st.session_state:
+    st.session_state.previous_input = ""
+
 if 'message_input' not in st.session_state:
     st.session_state.message_input = ""
 
@@ -33,17 +38,18 @@ if 'sentences' not in st.session_state:
 if 'first' not in st.session_state:
     st.session_state.first = True
 
-
 if st.session_state.first:
     # built to get the first prediction which is rule based and initialize the model in a session_state, will run once
     st.session_state.first = False
     st.session_state.prev_mood = "neutral"
     st.session_state.prev_app = ' text message conversation'
     st.session_state.emotion = 'neutral'
+    st.session_state.need_to_refresh_words = False
+    st.session_state.previous_input = []
 
     # gemini model
-    api_token = "AIzaSyDMzc7JPMJsiu6nwKFWkng4K4gTr_q7Fi4"
-    genai.configure(api_key=api_token)
+    gemini_api_token = GEMINI_API_KEY
+    genai.configure(api_key=gemini_api_token)
     model = genai.GenerativeModel('gemini-pro')
     st.session_state.model = model
 
@@ -64,7 +70,12 @@ def refresh_words(app_style=None):
                                                                          current_sentence=st.session_state.message_input,
                                                                          style=app_style,
                                                                          mood=st.session_state.emotion)
+    st.session_state.need_to_refresh_words = False
     st.rerun()
+
+
+if st.session_state.need_to_refresh_words:
+    refresh_words(st.session_state.app_style)
 
 
 def handle_text_chosen(text):
@@ -125,23 +136,29 @@ if st.session_state["input_app"] == 0:
     st.session_state.app_style = ' facebook social media post'
     if st.session_state.prev_app != st.session_state.app_style:
         st.session_state.prev_app = st.session_state.app_style
+        st.session_state.need_to_refresh_words = True
         st.rerun()
-        #refresh_words(' facebook social media post')
+
 elif st.session_state["input_app"] == 1:
     st.session_state.app_style = ' text message conversation'
     if st.session_state.prev_app != st.session_state.app_style:
         st.session_state.prev_app = st.session_state.app_style
-        refresh_words(' text message conversation')
+        st.session_state.need_to_refresh_words = True
+        st.rerun()
+
 elif st.session_state["input_app"] == 2:
     st.session_state.app_style = ' search query'
     if st.session_state.prev_app != st.session_state.app_style:
         st.session_state.prev_app = st.session_state.app_style
-        refresh_words(' search query')
+        st.session_state.need_to_refresh_words = True
+        st.rerun()
+
 elif st.session_state["input_app"] == 3:
     st.session_state.app_style = ' professional linkedin post'
     if st.session_state.prev_app != st.session_state.app_style:
         st.session_state.prev_app = st.session_state.app_style
-        refresh_words(' professional linkedin post')
+        st.session_state.need_to_refresh_words = True
+        st.rerun()
 
 # Layout for predictive text buttons using columns
 cont = st.container()
@@ -220,7 +237,11 @@ with st.form('chat_input_form'):
         st.write(
             f'{random.choice(["Amazing!", "Awesome!", "Incredible!", "Good on ya!"])}  \nYou were able to create the sentence: "{prompt}"  \n 👏🏻 👏🏻 👏🏻')
         st.balloons()
+        st.session_state.previous_input.append(st.session_state.message_input)
         st.session_state.message_input = ""
+        st.session_state.first = True
+        time.sleep(5)
+        st.rerun()
 
 # Mood slider at the bottom
 mood = st.select_slider("How are you feeling today?", ["😭", "😔", "😐", "😊", "😄"], key="mood", value="😐")
@@ -258,7 +279,14 @@ sac.segmented(
         sac.SegmentedItem(icon='eye'),
     ], size=20, radius=50, align='center', use_container_width=True, index=1, key='input_type', return_index=True)
 
+st.header("TESTING STT")
+whisper_text = whisper_stt(openai_api_key=WHISPER_API_KEY, language='en', just_once=True)
+
+if whisper_text:
+    if st.session_state.message_input == "":
+        handle_text_chosen(whisper_text)
+    else:
+        handle_text_chosen(whisper_text.lower())
+
 st.header("Debug:")
 st.write(st.session_state)
-
-
