@@ -4,3 +4,7 @@ streamlit_modal
 google-generativeai
 streamlit_mic_recorder
 openai
+opencv-python
+mediapipe==0.10.9
+pyautogui
+numpy
