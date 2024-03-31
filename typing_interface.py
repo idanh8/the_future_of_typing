@@ -10,6 +10,10 @@ from api_keys import WHISPER_API_KEY, GEMINI_API_KEY
 
 # https://nicedouble-streamlitantdcomponentsdemo-app-middmy.streamlit.app/
 
+
+NUM_WORDS = 7
+NUM_PHRASES = 5
+
 modal1 = Modal(key="up", title="Thank you for your feedback!")
 modal2 = Modal(key="down", title="We're Sorry! Thank you for your feedback")
 
@@ -41,6 +45,7 @@ if 'first' not in st.session_state:
 if st.session_state.first:
     # built to get the first prediction which is rule based and initialize the model in a session_state, will run once
     st.session_state.first = False
+    st.session_state.first_recommendation = True
     st.session_state.prev_mood = "neutral"
     st.session_state.prev_app = ' text message conversation'
     st.session_state.emotion = 'neutral'
@@ -53,7 +58,9 @@ if st.session_state.first:
     model = genai.GenerativeModel('gemini-pro')
     st.session_state.model = model
 
+if st.session_state.first_recommendation:
     # first recommendation
+    st.session_state.first_recommendation = False
     st.session_state.words = algorithms.get_first_word_predictions()
     st.session_state.sentences = algorithms.get_first_sentence_predictions()
     st.rerun()
@@ -66,10 +73,21 @@ def refresh_words(app_style=None):
                                                                  current_sentence=st.session_state.message_input,
                                                                  style=app_style,
                                                                  mood=st.session_state.emotion)
+        while len(set(st.session_state.words)) != NUM_WORDS:  # solves duplicate button for words
+            st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
+                                                                     current_sentence=st.session_state.message_input,
+                                                                     style=st.session_state.app_style,
+                                                                     mood=st.session_state.emotion)
+
         st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
                                                                          current_sentence=st.session_state.message_input,
                                                                          style=app_style,
                                                                          mood=st.session_state.emotion)
+        while len(set(st.session_state.sentences)) != NUM_PHRASES:  # solves duplicate button for words
+            st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
+                                                                             current_sentence=st.session_state.message_input,
+                                                                             style=st.session_state.app_style,
+                                                                             mood=st.session_state.emotion)
     st.session_state.need_to_refresh_words = False
     st.rerun()
 
@@ -78,7 +96,7 @@ if st.session_state.need_to_refresh_words:
     refresh_words(st.session_state.app_style)
 
 
-def handle_text_chosen(text):
+def handle_text_chosen(text, from_whisper=False):
     text_to_add = text.replace(".", "")
     if st.session_state.message_input == "":
         st.session_state.message_input += text_to_add
@@ -86,16 +104,33 @@ def handle_text_chosen(text):
         st.session_state.message_input += (" " + text_to_add)
 
     # Define predictive text options
-    with st.spinner('Loading inputs...'):
+    display_loading_text = ""
+    if from_whisper:
+        display_loading_text = "Processing recording..."
+    else:
+        display_loading_text = 'Loading inputs...'
+    with st.spinner(display_loading_text):
         # time.sleep(3)  # use this if you want to see loading affect if the generation is too quick...
         st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
                                                                  current_sentence=st.session_state.message_input,
                                                                  style=st.session_state.app_style,
                                                                  mood=st.session_state.emotion)
+
+        while len(set(st.session_state.words)) != NUM_WORDS:  # solves duplicate button for words
+            st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
+                                                                     current_sentence=st.session_state.message_input,
+                                                                     style=st.session_state.app_style,
+                                                                     mood=st.session_state.emotion)
+
         st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
                                                                          current_sentence=st.session_state.message_input,
                                                                          style=st.session_state.app_style,
                                                                          mood=st.session_state.emotion)
+        while len(set(st.session_state.sentences)) != NUM_PHRASES:  # solves duplicate button for words
+            st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
+                                                                             current_sentence=st.session_state.message_input,
+                                                                             style=st.session_state.app_style,
+                                                                             mood=st.session_state.emotion)
     st.success('Done!')  # because of the rerun we are not seeing this pop up...
     st.rerun()
 
@@ -118,9 +153,24 @@ def refresh_button(words=True):
                                                                      mood=st.session_state.emotion,
                                                                      refresh=True,
                                                                      words=st.session_state.words)
+            while len(set(st.session_state.words)) != NUM_WORDS:  # solves duplicate button for words
+                st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
+                                                                         current_sentence=st.session_state.message_input,
+                                                                         style=st.session_state.app_style,
+                                                                         mood=st.session_state.emotion,
+                                                                         refresh=True,
+                                                                         words=st.session_state.words)
+
 
     else:
         with st.spinner(''):
+            st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
+                                                                             current_sentence=st.session_state.message_input,
+                                                                             style=st.session_state.app_style,
+                                                                             mood=st.session_state.emotion,
+                                                                             refresh=True,
+                                                                             phrases=st.session_state.sentences)
+        while len(set(st.session_state.sentences)) != NUM_PHRASES:  # solves duplicate button for words
             st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
                                                                              current_sentence=st.session_state.message_input,
                                                                              style=st.session_state.app_style,
@@ -239,7 +289,7 @@ with st.form('chat_input_form'):
         st.balloons()
         st.session_state.previous_input.append(st.session_state.message_input)
         st.session_state.message_input = ""
-        st.session_state.first = True
+        st.session_state.first_recommendation = True
         time.sleep(5)
         st.rerun()
 
@@ -283,10 +333,13 @@ st.header("TESTING STT")
 whisper_text = whisper_stt(openai_api_key=WHISPER_API_KEY, language='en', just_once=True)
 
 if whisper_text:
-    if st.session_state.message_input == "":
-        handle_text_chosen(whisper_text)
+    if whisper_text == "Recording too long, keep recordings less than 10 seconds":
+        st.write(whisper_text)
     else:
-        handle_text_chosen(whisper_text.lower())
+        if st.session_state.message_input == "":
+            handle_text_chosen(whisper_text, from_whisper=True)
+        else:
+            handle_text_chosen(whisper_text.lower(), from_whisper=True)
 
 st.header("Debug:")
 st.write(st.session_state)

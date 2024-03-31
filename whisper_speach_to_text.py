@@ -3,7 +3,8 @@ from streamlit_mic_recorder import mic_recorder
 from openai import OpenAI
 import os
 import io
-# from mutagen.mp3 import MP3
+# from pydub import AudioSegment
+from speech_recognition import AudioData
 
 
 def whisper_stt(openai_api_key=None, start_prompt="Start recording", stop_prompt="Stop recording", just_once=False,
@@ -32,11 +33,14 @@ def whisper_stt(openai_api_key=None, start_prompt="Start recording", stop_prompt
             success = False
             err = 0
 
-            # # Path to your MP3 file
-            # audio_file_path = 'path/to/your/audio/file.mp3'
-            #
-            # audio = MP3(audio_file_path)
-            # duration_seconds = audio.info.length
+            audio_data = AudioData(audio['bytes'], audio['sample_rate'], audio['sample_width'])
+            num_bytes = len(audio_data.frame_data)
+            if num_bytes > 155000:
+                # st.write(f"num bytes: {num_bytes:,}")
+                # 10 seconds: 155,000 bytes
+                # 5 seconds: 85,000
+                return "Recording too long, keep recordings less than 10 seconds"
+
             while not success and err < 3:  # Retry up to 3 times in case of OpenAI server error.
                 try:
                     transcript = st.session_state.openai_client.audio.transcriptions.create(
@@ -61,4 +65,3 @@ def whisper_stt(openai_api_key=None, start_prompt="Start recording", stop_prompt
     if new_output and callback:
         callback(*args, **(kwargs or {}))
     return output
-

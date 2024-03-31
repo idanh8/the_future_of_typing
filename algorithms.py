@@ -25,6 +25,12 @@ def process_gemini_response(x):
 
 def prompt_model(model: genai, prompt: str) -> list:
     generation_response = model.generate_content(prompt)
+
+    count = 0
+    while (len(generation_response.parts) == 0) and (count < 3):  # model returned empty response, allow 3 retries
+        generation_response = model.generate_content(prompt)
+        count += 1
+
     result_list = process_gemini_response(generation_response.text)
     return result_list
 
