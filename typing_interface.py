@@ -105,7 +105,7 @@ def handle_text_chosen(text, from_whisper=False):
     if st.session_state.message_input == "":
         st.session_state.message_input += text_to_add
     else:
-        st.session_state.message_input += (" " + text_to_add)
+        st.session_state.message_input += (" " + text_to_add.lower())
 
     # Define predictive text options
     display_loading_text = ""

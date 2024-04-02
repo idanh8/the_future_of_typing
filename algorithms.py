@@ -168,7 +168,8 @@ def get_words_and_phrases_drop_dups(words: list, phrases: list):
         if word in phrases:
             words_to_drop.append(word)
 
-    for word in words_to_drop:
-        words.remove(word)
+    # for word in words_to_drop:
+    #     words.remove(word)  # this modifies the original list
+    words = [x for x in words if x not in words_to_drop]
 
     return words, phrases
