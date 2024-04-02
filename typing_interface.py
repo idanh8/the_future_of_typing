@@ -246,6 +246,8 @@ elif st.session_state["input_app"] == 3:
         st.rerun()
 
 # Layout for predictive text buttons using columns
+words, phrases = algorithms.get_words_and_phrases_drop_dups(st.session_state.words, st.session_state.sentences)
+
 cont = st.container()
 with cont:
     col0, col1, col2 = st.columns([10, 5, 10])
@@ -254,24 +256,25 @@ with cont:
         with cont1:
             col1a, col1b = st.columns(2)
             with col1a:
-                for text in st.session_state.words[:4]:
+                for text in words[:4]:
                     if st.button(text):
                         handle_text_chosen(text)
             with col1b:
-                for text in st.session_state.words[4:]:
-                    if st.button(text):
-                        handle_text_chosen(text)
+                if len(words) > 4:
+                    for text in words[4:]:
+                        if st.button(text):
+                            handle_text_chosen(text)
 
     with col2:
         cont2 = st.container(border=True)
         with cont2:
             col2a, col2b = st.columns(2)
             with col2a:
-                for text in st.session_state.sentences[:3]:
+                for text in phrases[:3]:
                     if st.button(text):
                         handle_text_chosen(text)
             with col2b:
-                for text in st.session_state.sentences[3:]:
+                for text in phrases[3:]:
                     if st.button(text):
                         handle_text_chosen(text)
 

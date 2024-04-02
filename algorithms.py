@@ -157,3 +157,18 @@ def get_first_sentence_predictions(app_style_index: int, mood: str):
                 "Are the...",
                 "Where are...",
                 "Good stuff!"]
+
+
+def get_words_and_phrases_drop_dups(words: list, phrases: list):
+    """
+    gets 2 lists of strings, returns the lists after dropping
+    """
+    words_to_drop = []
+    for word in words:
+        if word in phrases:
+            words_to_drop.append(word)
+
+    for word in words_to_drop:
+        words.remove(word)
+
+    return words, phrases
