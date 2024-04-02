@@ -48,7 +48,7 @@ if st.session_state.first:
     st.session_state.refreshed_phrases = []
     st.session_state.first = False
     st.session_state.first_recommendation = True
-    st.session_state.prev_mood = "neutral"
+    st.session_state.prev_mood = "😐 neutral"
     st.session_state.prev_app = ' text message conversation'
     st.session_state.emotion = 'neutral'
     st.session_state.need_to_refresh_words = False
@@ -335,38 +335,88 @@ with st.form('chat_input_form'):
         st.rerun()
 
 # Mood slider at the bottom
-mood = st.select_slider("How are you feeling today?", ["😡 angry", "😔 sad", "🧐 serious", "😐 neutral", "😊 happy", "😂 funny"], key="mood", value="😐 neutral")
+# mood = st.select_slider("How are you feeling today?",
+#                         ["😡 angry", "😔 sad", "🧐 serious", "😐 neutral", "😊 happy", "😂 funny"], key="mood",
+#                         value=st.session_state.mood)
 
-if mood == "😂 funny":
+st.select_slider("How are you feeling today?",
+                 ["😡 angry", "😔 sad", "🧐 serious", "😐 neutral", "😊 happy", "😂 funny"], key="mood",
+                 value=st.session_state.prev_mood)
+
+# if st.session_state.emotion == "funny":
+#     st.write(st.session_state.mood)
+#     st.write(st.session_state.emotion)
+#     # st.write(st.session_state)
+#     # time.sleep(5)
+#     # st.write(st.session_state)
+#     raise "HERE"
+
+if st.session_state.mood == "😂 funny":
     st.session_state.emotion = 'funny'
-    if st.session_state.prev_mood != st.session_state.emotion:
-        st.session_state.prev_mood = st.session_state.emotion
-        refresh_words()
-elif mood == "😊 happy":
+    if st.session_state.prev_mood != st.session_state.mood:
+        st.session_state.prev_mood = st.session_state.mood
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            st.session_state.need_to_refresh_words = True
+        st.rerun()
+
+
+elif st.session_state.mood == "😊 happy":
     st.session_state.emotion = 'happy'
-    if st.session_state.prev_mood != st.session_state.emotion:
-        st.session_state.prev_mood = st.session_state.emotion
-        refresh_words()
-elif mood == "😐 neutral":
+    if st.session_state.prev_mood != st.session_state.mood:
+        st.session_state.prev_mood = st.session_state.mood
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            refresh_words()
+        st.rerun()
+
+elif st.session_state.mood == "😐 neutral":
     st.session_state.emotion = 'neutral'
-    if st.session_state.prev_mood != st.session_state.emotion:
-        st.session_state.prev_mood = st.session_state.emotion
-        refresh_words()
-elif mood == "🧐 serious":
+    if st.session_state.prev_mood != st.session_state.mood:
+        st.session_state.prev_mood = st.session_state.mood
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            refresh_words()
+        st.rerun()
+
+elif st.session_state.mood == "🧐 serious":
     st.session_state.emotion = 'serious'
-    if st.session_state.prev_mood != st.session_state.emotion:
-        st.session_state.prev_mood = st.session_state.emotion
-        refresh_words()
-elif mood == "😔 sad":
+    if st.session_state.prev_mood != st.session_state.mood:
+        st.session_state.prev_mood = st.session_state.mood
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            refresh_words()
+        st.rerun()
+
+elif st.session_state.mood == "😔 sad":
     st.session_state.emotion = 'sad'
-    if st.session_state.prev_mood != st.session_state.emotion:
-        st.session_state.prev_mood = st.session_state.emotion
-        refresh_words()
-elif mood == "😡 angry":
+    if st.session_state.prev_mood != st.session_state.mood:
+        st.session_state.prev_mood = st.session_state.mood
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            refresh_words()
+        st.rerun()
+
+elif st.session_state.mood == "😡 angry":
     st.session_state.emotion = 'angry'
-    if st.session_state.prev_mood != st.session_state.emotion:
-        st.session_state.prev_mood = st.session_state.emotion
-        refresh_words()
+    if st.session_state.prev_mood != st.session_state.mood:
+        st.session_state.prev_mood = st.session_state.mood
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            refresh_words()
+        st.rerun()
 
 # Input Type
 sac.segmented(

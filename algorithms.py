@@ -27,23 +27,36 @@ def prompt_model(model: genai, prompt: str) -> list:
     generation_response = model.generate_content(prompt)
 
     count = 0
-    while (len(generation_response.parts) == 0) and (count < 3):  # model returned empty response, allow 3 retries
-        generation_response = model.generate_content(prompt)
-        count += 1
+    try:
+        while (len(generation_response.parts) == 0) and (count < 3):  # model returned empty response, allow 3 retries
+            generation_response = model.generate_content(prompt)
+            count += 1
+        result_list = process_gemini_response(generation_response.text)
+    except:
+        return []
 
-    result_list = process_gemini_response(generation_response.text)
     return result_list
 
 
-def get_word_predictions(model: genai, current_sentence: str, style: str, mood: str, refresh=False, words=None):
+def get_word_predictions(model: genai, current_sentence: str, style: str, mood: str, refresh=False, words=None,
+                         num_words=7):
     prompt = prompts.get_prompt_for_next_word(current_sentence, style, mood, refresh, words)
     res = prompt_model(model, prompt)
+
+    if len(res) == 0:  # conflict with gemini safety
+        res = [f"Error_{i}" for i in range(num_words)]
+
     return res
 
 
-def get_sentence_predictions(model: genai, current_sentence: str, style: str, mood: str, refresh=False, phrases=None):
+def get_sentence_predictions(model: genai, current_sentence: str, style: str, mood: str, refresh=False, phrases=None,
+                             num_phrases=5):
     prompt = prompts.get_prompt_for_next_phrases(current_sentence, style, mood, refresh, phrases)
     res = prompt_model(model, prompt)
+
+    if len(res) == 0:  # conflict with gemini safety
+        res = [f"Error_{i}" for i in range(num_phrases)]
+
     return res
 
 
@@ -139,7 +152,7 @@ def get_first_sentence_predictions(app_style_index: int, mood: str):
 
     if app_style == "google":
         return ["How to...",
-                "Whats the?",
+                "Whats the...",
                 "Why do...",
                 "Are the...",
                 "Where are...",
