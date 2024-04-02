@@ -63,8 +63,10 @@ if st.session_state.first:
 if st.session_state.first_recommendation:
     # first recommendation
     st.session_state.first_recommendation = False
-    st.session_state.words = algorithms.get_first_word_predictions()
-    st.session_state.sentences = algorithms.get_first_sentence_predictions()
+    st.session_state.words = algorithms.get_first_word_predictions(app_style_index=st.session_state["input_app"])
+    st.session_state.sentences = algorithms.get_first_sentence_predictions(
+        app_style_index=st.session_state["input_app"],
+        mood=st.session_state["emotion"])
     st.rerun()
 
 
@@ -203,28 +205,44 @@ if st.session_state["input_app"] == 0:
     st.session_state.app_style = ' facebook social media post'
     if st.session_state.prev_app != st.session_state.app_style:
         st.session_state.prev_app = st.session_state.app_style
-        st.session_state.need_to_refresh_words = True
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            st.session_state.need_to_refresh_words = True
         st.rerun()
 
 elif st.session_state["input_app"] == 1:
     st.session_state.app_style = ' text message conversation'
     if st.session_state.prev_app != st.session_state.app_style:
         st.session_state.prev_app = st.session_state.app_style
-        st.session_state.need_to_refresh_words = True
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            st.session_state.need_to_refresh_words = True
         st.rerun()
 
 elif st.session_state["input_app"] == 2:
     st.session_state.app_style = ' search query'
     if st.session_state.prev_app != st.session_state.app_style:
         st.session_state.prev_app = st.session_state.app_style
-        st.session_state.need_to_refresh_words = True
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            st.session_state.need_to_refresh_words = True
         st.rerun()
 
 elif st.session_state["input_app"] == 3:
     st.session_state.app_style = ' professional linkedin post'
     if st.session_state.prev_app != st.session_state.app_style:
         st.session_state.prev_app = st.session_state.app_style
-        st.session_state.need_to_refresh_words = True
+
+        if st.session_state.message_input == "":
+            st.session_state.first_recommendation = True
+        else:
+            st.session_state.need_to_refresh_words = True
         st.rerun()
 
 # Layout for predictive text buttons using columns
