@@ -44,6 +44,8 @@ if 'first' not in st.session_state:
 
 if st.session_state.first:
     # built to get the first prediction which is rule based and initialize the model in a session_state, will run once
+    st.session_state.refreshed_words = []
+    st.session_state.refreshed_phrases = []
     st.session_state.first = False
     st.session_state.first_recommendation = True
     st.session_state.prev_mood = "neutral"
@@ -130,7 +132,10 @@ def handle_text_chosen(text, from_whisper=False):
             st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
                                                                              current_sentence=st.session_state.message_input,
                                                                              style=st.session_state.app_style,
+
                                                                              mood=st.session_state.emotion)
+    st.session_state.refreshed_words = []
+    st.session_state.refreshed_phrases = []
     st.success('Done!')  # because of the rerun we are not seeing this pop up...
     st.rerun()
 
@@ -146,37 +151,39 @@ def handle_click(key):
 
 def refresh_button(words=True):
     if words:
+        st.session_state.refreshed_words.append(st.session_state.words)
         with st.spinner(''):
             st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
                                                                      current_sentence=st.session_state.message_input,
                                                                      style=st.session_state.app_style,
                                                                      mood=st.session_state.emotion,
                                                                      refresh=True,
-                                                                     words=st.session_state.words)
+                                                                     words=st.session_state.refreshed_words)
             while len(set(st.session_state.words)) != NUM_WORDS:  # solves duplicate button for words
                 st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
                                                                          current_sentence=st.session_state.message_input,
                                                                          style=st.session_state.app_style,
                                                                          mood=st.session_state.emotion,
                                                                          refresh=True,
-                                                                         words=st.session_state.words)
+                                                                         words=st.session_state.refreshed_words)
 
 
     else:
+        st.session_state.refreshed_phrases.append(st.session_state.sentences)
         with st.spinner(''):
             st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
                                                                              current_sentence=st.session_state.message_input,
                                                                              style=st.session_state.app_style,
                                                                              mood=st.session_state.emotion,
                                                                              refresh=True,
-                                                                             phrases=st.session_state.sentences)
+                                                                             phrases=st.session_state.refreshed_phrases)
         while len(set(st.session_state.sentences)) != NUM_PHRASES:  # solves duplicate button for words
             st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
                                                                              current_sentence=st.session_state.message_input,
                                                                              style=st.session_state.app_style,
                                                                              mood=st.session_state.emotion,
                                                                              refresh=True,
-                                                                             phrases=st.session_state.sentences)
+                                                                             phrases=st.session_state.refreshed_phrases)
     st.success('Done!')  # because of the rerun we are not seeing this pop up...
     st.rerun()
 
