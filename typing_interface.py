@@ -155,12 +155,16 @@ def refresh_button(words=True):
     if words:
         st.session_state.refreshed_words.append(st.session_state.words)
         with st.spinner(''):
-            st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
-                                                                     current_sentence=st.session_state.message_input,
-                                                                     style=st.session_state.app_style,
-                                                                     mood=st.session_state.emotion,
-                                                                     refresh=True,
-                                                                     words=st.session_state.refreshed_words)
+
+            if st.session_state.message_input == "":  # refresh with empty text input
+                st.session_state.words = algorithms.get_random_words_for_refresh(num_words=NUM_WORDS)
+            else:
+                st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
+                                                                         current_sentence=st.session_state.message_input,
+                                                                         style=st.session_state.app_style,
+                                                                         mood=st.session_state.emotion,
+                                                                         refresh=True,
+                                                                         words=st.session_state.refreshed_words)
             while len(set(st.session_state.words)) != NUM_WORDS:  # solves duplicate button for words
                 st.session_state.words = algorithms.get_word_predictions(model=st.session_state.model,
                                                                          current_sentence=st.session_state.message_input,
@@ -173,12 +177,16 @@ def refresh_button(words=True):
     else:
         st.session_state.refreshed_phrases.append(st.session_state.sentences)
         with st.spinner(''):
-            st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
-                                                                             current_sentence=st.session_state.message_input,
-                                                                             style=st.session_state.app_style,
-                                                                             mood=st.session_state.emotion,
-                                                                             refresh=True,
-                                                                             phrases=st.session_state.refreshed_phrases)
+
+            if st.session_state.message_input == "":  # refresh with empty text input
+                st.session_state.sentences = algorithms.get_random_phrases_for_refresh(num_phrases=NUM_PHRASES)
+            else:
+                st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
+                                                                                 current_sentence=st.session_state.message_input,
+                                                                                 style=st.session_state.app_style,
+                                                                                 mood=st.session_state.emotion,
+                                                                                 refresh=True,
+                                                                                 phrases=st.session_state.refreshed_phrases)
         while len(set(st.session_state.sentences)) != NUM_PHRASES:  # solves duplicate button for words
             st.session_state.sentences = algorithms.get_sentence_predictions(model=st.session_state.model,
                                                                              current_sentence=st.session_state.message_input,
@@ -337,22 +345,11 @@ with st.form('chat_input_form'):
         time.sleep(5)
         st.rerun()
 
-# Mood slider at the bottom
-# mood = st.select_slider("How are you feeling today?",
-#                         ["😡 angry", "😔 sad", "🧐 serious", "😐 neutral", "😊 happy", "😂 funny"], key="mood",
-#                         value=st.session_state.mood)
-
+# mood slider
 st.select_slider("How are you feeling today?",
                  ["😡 angry", "😔 sad", "🧐 serious", "😐 neutral", "😊 happy", "😂 funny"], key="mood",
                  value=st.session_state.prev_mood)
 
-# if st.session_state.emotion == "funny":
-#     st.write(st.session_state.mood)
-#     st.write(st.session_state.emotion)
-#     # st.write(st.session_state)
-#     # time.sleep(5)
-#     # st.write(st.session_state)
-#     raise "HERE"
 
 if st.session_state.mood == "😂 funny":
     st.session_state.emotion = 'funny'

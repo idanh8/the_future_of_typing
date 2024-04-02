@@ -1,6 +1,7 @@
 # pip install -q -U google-generativeai
 import google.generativeai as genai
 import prompts
+import random
 
 
 def process_gemini_response(x):
@@ -173,3 +174,22 @@ def get_words_and_phrases_drop_dups(words: list, phrases: list):
     words = [x for x in words if x not in words_to_drop]
 
     return words, phrases
+
+
+def get_random_words_for_refresh(num_words: int):
+    top_words_wikipedia_filtered = ['The', 'In', 'He', 'It', 'On', 'This', 'A', 'She', 'After', 'See', 'As', 'They',
+                                    'His', 'At', 'People', 'There', 'However', 'During', 'History', 'For', 'When',
+                                    'These', 'From', 'According', 'By', 'With', 'Other', 'While', 'Early', 'One',
+                                    'Some', 'Since', 'List', 'Career', 'Her', 'Although', 'New', 'An', 'Its']
+    return random.sample(top_words_wikipedia_filtered, k=num_words)
+
+
+def get_random_phrases_for_refresh(num_phrases: int):
+    top_phrases_wikipedia_filtered = ['According to the', 'Members of the', 'As of the', 'In addition to', 'One of the',
+                                      'It is a', 'It is the', 'The median age', 'The average household', 'He was a',
+                                      'He was the', 'The median income', 'As a result,', 'It is also', 'There is a',
+                                      'It was the', 'He was also', 'In the early', 'Most of the', 'The population was',
+                                      'At the end', 'Some of the', 'It has been', 'This is a', 'Due to the',
+                                      'Early life and', 'At the time', 'The film was', 'It is located']
+
+    return random.sample(top_phrases_wikipedia_filtered, k=num_phrases)
