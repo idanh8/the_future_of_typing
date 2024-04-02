@@ -317,30 +317,35 @@ with st.form('chat_input_form'):
         st.rerun()
 
 # Mood slider at the bottom
-mood = st.select_slider("How are you feeling today?", ["😭", "😔", "😐", "😊", "😄"], key="mood", value="😐")
+mood = st.select_slider("How are you feeling today?", ["😡 angry", "😔 sad", "🧐 serious", "😐 neutral", "😊 happy", "😂 funny"], key="mood", value="😐 neutral")
 
-if mood == "😄":
-    st.session_state.emotion = 'overjoyed'
+if mood == "😂 funny":
+    st.session_state.emotion = 'funny'
     if st.session_state.prev_mood != st.session_state.emotion:
         st.session_state.prev_mood = st.session_state.emotion
         refresh_words()
-elif mood == "😊":
+elif mood == "😊 happy":
     st.session_state.emotion = 'happy'
     if st.session_state.prev_mood != st.session_state.emotion:
         st.session_state.prev_mood = st.session_state.emotion
         refresh_words()
-elif mood == "😐":
+elif mood == "😐 neutral":
     st.session_state.emotion = 'neutral'
     if st.session_state.prev_mood != st.session_state.emotion:
         st.session_state.prev_mood = st.session_state.emotion
         refresh_words()
-elif mood == "😔":
+elif mood == "🧐 serious":
+    st.session_state.emotion = 'serious'
+    if st.session_state.prev_mood != st.session_state.emotion:
+        st.session_state.prev_mood = st.session_state.emotion
+        refresh_words()
+elif mood == "😔 sad":
     st.session_state.emotion = 'sad'
     if st.session_state.prev_mood != st.session_state.emotion:
         st.session_state.prev_mood = st.session_state.emotion
         refresh_words()
-elif mood == "😭":
-    st.session_state.emotion = 'devastated'
+elif mood == "😡 angry":
+    st.session_state.emotion = 'angry'
     if st.session_state.prev_mood != st.session_state.emotion:
         st.session_state.prev_mood = st.session_state.emotion
         refresh_words()
