@@ -346,7 +346,7 @@ with st.form('chat_input_form'):
         st.rerun()
 
 # mood slider
-st.select_slider("How are you feeling today?",
+st.select_slider("Shift your mood by changing the slider",
                  ["😡 angry", "😔 sad", "🧐 serious", "😐 neutral", "😊 happy", "😂 funny"], key="mood",
                  value=st.session_state.prev_mood)
 
@@ -444,5 +444,5 @@ with col11:
         for sentence in chat_history:
             st.write(sentence)
 
-st.header("Debug:")
-st.write(st.session_state)
+#st.header("Debug:")
+#st.write(st.session_state)
