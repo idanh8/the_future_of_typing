@@ -44,6 +44,9 @@ if 'first' not in st.session_state:
 
 if st.session_state.first:
     # built to get the first prediction which is rule based and initialize the model in a session_state, will run once
+    if WHISPER_API_KEY == "" or GEMINI_API_KEY == "":
+        raise "API KEY ERROR: please upload the api keys to the api_keys.py file"
+
     st.session_state.refreshed_words = []
     st.session_state.refreshed_phrases = []
     st.session_state.first = False
@@ -349,7 +352,6 @@ with st.form('chat_input_form'):
 st.select_slider("Shift your mood by changing the slider",
                  ["😡 angry", "😔 sad", "🧐 serious", "😐 neutral", "😊 happy", "😂 funny"], key="mood",
                  value=st.session_state.prev_mood)
-
 
 if st.session_state.mood == "😂 funny":
     st.session_state.emotion = 'funny'
