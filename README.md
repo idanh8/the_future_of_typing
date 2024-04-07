@@ -9,7 +9,9 @@ Submitted by:
 ## 📝 Description
 We believe there is a new typing method which will emerge in the near future, due to the augmented reality tech being introduced to the word. 
 When comming accross the Wall Street Journal's review of the Apple VisionPro,
+
 They noted: "...one big problem." (see minute 1:49: https://youtu.be/8xI10SFgzQ8?si=WRSPMa4We3VgLh3Q&t=105) 
+
 We decided to create a new concept keyborad for the AR world, solving this problem.
 
 ![system on wsj](images/vis_in_wsj_review.png)
@@ -45,9 +47,10 @@ Follow these steps to get the application running:
 6. run `mouse_control_with_fist_stop_mouse.py`.
 7. navigate to the window with the streamlit app running and start typing.
    
-> 🔔 **Import Note**:
-> Make sure you are connected to 1 display only! the app does not support multiple displays.
-> running 2 seperate projects (streamlit app & mouse control) is essential to fully experience the final product. You can also assess the keyboard alone wihtout the mouse control app.
+> 🔔 **Import Notes**:
+> - Make sure you are connected to 1 display only! the app does not support multiple displays.
+> 
+> - running 2 seperate projects (streamlit app & mouse control) is essential to fully experience the final product. You can also assess the keyboard alone wihtout the mouse control app.
 
 ### Keyborad Result
 ![result](images/keyboard_result.png)
