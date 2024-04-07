@@ -6,13 +6,14 @@ from streamlit_modal import Modal
 import time
 import google.generativeai as genai
 from whisper_speech_to_text import whisper_stt
-from api_keys import WHISPER_API_KEY, GEMINI_API_KEY
 
 # https://nicedouble-streamlitantdcomponentsdemo-app-middmy.streamlit.app/
 
-
 NUM_WORDS = 7
 NUM_PHRASES = 5
+
+WHISPER_API_KEY = st.secrets["WHISPER_API_KEY"]
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 
 modal1 = Modal(key="up", title="Thank you for your feedback!")
 modal2 = Modal(key="down", title="We're Sorry! Thank you for your feedback")
