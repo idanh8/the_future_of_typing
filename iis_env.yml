@@ -1,0 +1,16 @@
+name: iis_env
+channels:
+  - defaults
+dependencies:
+  - python=3.10.9
+  - pip:
+    - mediapipe==0.10.9
+    - streamlit
+    - streamlit_antd_components
+    - streamlit_modal
+    - google-generativeai
+    - streamlit_mic_recorder
+    - openai
+    - opencv-python
+    - pyautogui
+    - numpy

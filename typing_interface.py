@@ -444,5 +444,5 @@ with col11:
         for sentence in chat_history:
             st.write(sentence)
 
-#st.header("Debug:")
-#st.write(st.session_state)
+# st.header("Debug:")
+# st.write(st.session_state)
